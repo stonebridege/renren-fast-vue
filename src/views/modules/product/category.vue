@@ -66,7 +66,7 @@ export default {
   methods: {
     batchSave () {
       this.$http({
-        url: this.$http.adornUrl('/product/category/update/sort'),
+        url: this.$http.adornUrl('/mallproduct/category/update/sort'),
         method: 'post',
         data: this.$http.adornData(this.updateNodes, false)
       }).then(({data}) => {
