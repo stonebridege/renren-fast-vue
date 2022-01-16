@@ -2,8 +2,9 @@
   <el-dialog
     :title="!dataForm.attrGroupId ? '新增' : '修改'"
     :close-on-click-modal="false"
+    @closed="dialogClosed"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="90px">
     <el-form-item label="组名" prop="attrGroupName">
       <el-input v-model="dataForm.attrGroupName" placeholder="组名"></el-input>
     </el-form-item>
@@ -17,7 +18,14 @@
       <el-input v-model="dataForm.icon" placeholder="组图标"></el-input>
     </el-form-item>
     <el-form-item label="所属分类id" prop="catelogId">
-      <el-input v-model="dataForm.catelogId" placeholder="所属分类id"></el-input>
+<!--      <el-input v-model="dataForm.catelogId" placeholder="所属分类id"></el-input>-->
+      <el-cascader
+        v-model="dataForm.catelogIds"  placeholder="试试搜索，手机"
+        :options="categorys"
+        style="width: 100%;"
+        @change="changeCatelogId"
+        filterable
+        :props="props"></el-cascader>
     </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -32,14 +40,21 @@
     data () {
       return {
         visible: false,
+        props: {
+          value: 'catId',
+          label: 'name',
+          children: 'children'
+        },
         dataForm: {
           attrGroupId: 0,
           attrGroupName: '',
           sort: '',
           descript: '',
           icon: '',
+          catelogIds: [],
           catelogId: ''
         },
+        categorys: [],
         dataRule: {
           attrGroupName: [
             { required: true, message: '组名不能为空', trigger: 'blur' }
@@ -59,6 +74,9 @@
         }
       }
     },
+    mounted () {
+      this.getCateGorys()
+    },
     methods: {
       init (id) {
         this.dataForm.attrGroupId = id || 0
@@ -72,14 +90,31 @@
               params: this.$http.adornParams()
             }).then(({data}) => {
               if (data && data.code === 0) {
+                console.log(data)
                 this.dataForm.attrGroupName = data.attrGroup.attrGroupName
                 this.dataForm.sort = data.attrGroup.sort
                 this.dataForm.descript = data.attrGroup.descript
                 this.dataForm.icon = data.attrGroup.icon
                 this.dataForm.catelogId = data.attrGroup.catelogId
+                //查询完整路径
+                this.dataForm.catelogIds = data.attrGroup.catelogPath
               }
             })
           }
+        })
+      },
+      changeCatelogId () {
+        this.dataForm.catelogId = this.dataForm.catelogIds[this.dataForm.catelogIds.length - 1]
+      },
+      dialogClosed(){
+        this.dataForm.catelogIds = []
+      },
+      getCateGorys () {
+        this.$http({
+          url: this.$http.adornUrl('/mallproduct/category/list/tree'),
+          method: 'get'
+        }).then(({data}) => {
+          this.categorys = data.data
         })
       },
       // 表单提交

@@ -130,7 +130,7 @@ export default {
     treeNodeClick (data, node, component) {
       if (node.level === 3) {
         this.catId = data.catId
-        this.getDataList();
+        this.getDataList()
       }
     },
     // 获取数据列表
@@ -172,8 +172,11 @@ export default {
     },
     // 新增 / 修改
     addOrUpdateHandle (id) {
+      //将显示弹窗置为true
       this.addOrUpdateVisible = true
+      //当要渲染的组件完全渲染后去调用这个方法
       this.$nextTick(() => {
+        //当前页面.所有组件.addOrUpdate组件.init方法
         this.$refs.addOrUpdate.init(id)
       })
     },
