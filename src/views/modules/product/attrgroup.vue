@@ -12,6 +12,7 @@
             </el-form-item>
             <el-form-item>
               <el-button @click="getDataList()">查询</el-button>
+              <el-button type="success" @click="getAllDataList()">查询全部</el-button>
               <el-button v-if="isAuth('mallproduct:attrgroup:save')" type="primary" @click="addOrUpdateHandle()">新增
               </el-button>
               <el-button v-if="isAuth('mallproduct:attrgroup:delete')" type="danger" @click="deleteHandle()"
@@ -74,6 +75,7 @@
               width="150"
               label="操作">
               <template slot-scope="scope">
+                <el-button type="text" size="small" @click="relationHandle(scope.row.attrGroupId)">关联属性</el-button>
                 <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.attrGroupId)">修改</el-button>
                 <el-button type="text" size="small" @click="deleteHandle(scope.row.attrGroupId)">删除</el-button>
               </template>
@@ -90,6 +92,8 @@
           </el-pagination>
           <!-- 弹窗, 新增 / 修改 -->
           <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+          <!-- 修改关联关系 -->
+          <relation-update v-if="relationVisible" ref="relationUpdate" @refreshData="getDataList"></relation-update>
         </div>
       </el-col>
     </el-row>
@@ -104,10 +108,11 @@
 <script>
 import AddOrUpdate from './attrgroup-add-or-update'
 import category from '../common/category'
+import RelationUpdate from "./attr-group-relation";
 
 export default {
   name: 'attrgroup',
-  components: {category, AddOrUpdate},
+  components: {category, AddOrUpdate,RelationUpdate},
   data () {
     return {
       catId: 0,
@@ -120,7 +125,8 @@ export default {
       totalPage: 0,
       dataListLoading: false,
       dataListSelections: [],
-      addOrUpdateVisible: false
+      addOrUpdateVisible: false,
+      relationVisible: false
     }
   },
   activated () {
@@ -132,6 +138,17 @@ export default {
         this.catId = data.catId
         this.getDataList()
       }
+    },
+    getAllDataList(){
+      this.catId = 0;
+      this.getDataList();
+    },
+    //处理分组与属性的关联
+    relationHandle(groupId) {
+      this.relationVisible = true;
+      this.$nextTick(() => {
+        this.$refs.relationUpdate.init(groupId);
+      });
     },
     // 获取数据列表
     getDataList () {

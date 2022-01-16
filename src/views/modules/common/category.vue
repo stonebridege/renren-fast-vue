@@ -1,10 +1,16 @@
 <template>
-  <el-tree :data="menus"
-           :props="defaultProps"
-           node-key="catId"
-           @node-click="nodeClick"
-           ref="menuTree">
-  </el-tree>
+  <div>
+    <el-input placeholder="输入关键字进行过滤" v-model="filterText"></el-input>
+    <el-tree
+      :data="menus"
+      :props="defaultProps"
+      node-key="catId"
+      ref="menuTree"
+      @node-click="nodeClick"
+      :filter-node-method="filterNode"
+      :highlight-current = "true"
+    ></el-tree>
+  </div>
 </template>
 
 <script>
@@ -13,6 +19,7 @@ export default {
   data () {
     return {
       menus: [],
+      filterText: "",
       expandeKey: [],
       defaultProps: {
         children: 'children',
@@ -23,6 +30,12 @@ export default {
   mounted () {
     this.getMenus()
   },
+  //监控data中的数据变化
+  watch: {
+    filterText(val) {
+      this.$refs.menuTree.filter(val);
+    }
+  },
   methods: {
     getMenus () {
       this.$http({
@@ -31,6 +44,11 @@ export default {
       }).then(({data}) => {
         this.menus = data.data
       })
+    },
+    //树节点过滤
+    filterNode(value, data) {
+      if (!value) return true;
+      return data.name.indexOf(value) !== -1;
     },
     nodeClick (data, node, component) {
       console.log('子组件category组件被点击')
