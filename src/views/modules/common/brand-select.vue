@@ -15,44 +15,47 @@
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import  《组件名称》  from  '《组件路径》';
 
+import PubSub from "pubsub-js";
+
 export default {
   //import引入的组件需要注入到对象中才能使用
   components: {},
   props: {},
-  data() {
+  data () {
     //这里存放数据
     return {
       catId: 0,
       brands: [
         {
-          label: "a",
-          value: 1
+          label: 'a',
+          value: 1,
+          brandName:''
         }
       ],
-      brandId: "",
+      brandId: '',
       subscribe: null
-    };
+    }
   },
-  //计算属性  类似于data概念
+  //计算属性类似于data概念
   computed: {},
   //监控data中的数据变化
   watch: {
-    brandId(val) {
-      this.PubSub.publish("brandId", val);
+    brandId (val) {
+      this.PubSub.publish('brandId', val)
     }
   },
   //方法集合
   methods: {
-    getCatBrands() {
+    getCatBrands () {
       this.$http({
         url: this.$http.adornUrl("/mallproduct/categorybrandrelation/brands/list"),
         method: "get",
         params: this.$http.adornParams({
           catId: this.catId
         })
-      }).then(({ data }) => {
-        this.brands = data.data;
-      });
+      }).then(({data}) => {
+        this.brands = data.data
+      })
     }
   },
   //生命周期  -  创建完成（可以访问当前this实例）
@@ -60,10 +63,10 @@ export default {
   //生命周期  -  挂载完成（可以访问DOM元素）
   mounted() {
     //监听三级分类消息的变化
-    this.subscribe = PubSub.subscribe("catPath", (msg, val) => {
-      this.catId = val[val.length - 1];
-      this.getCatBrands();
-    });
+    this.subscribe = PubSub.subscribe('catPath', (msg, val) => {
+      this.catId = val[val.length - 1]
+      this.getCatBrands()
+    })
   },
   beforeCreate() {}, //生命周期  -  创建之前
   beforeMount() {}, //生命周期  -  挂载之前
